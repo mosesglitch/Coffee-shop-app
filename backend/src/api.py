@@ -66,20 +66,22 @@ def retrieve_drinks_long():
 '''
 @app.route('/drinks',methods=['POST'])
 def add_drink():
-    # try:
-    body = request.get_json()
-    title = body.get("title",None)
-    recipe_j = body.get("recipe",None)
-    recipe= [ast.literal_eval(json.dumps(recipe)) for recipe in recipe_j]
-    drink  =  Drink(
-    title = title,
-    recipe = recipe
-    )
-    drink.insert()
-    new_drink = Drink.query.filter(Drink.title == title).first()
-    return jsonify({"success": True,})
-    # except:
-    #     abort(422)
+    try:
+        body = request.get_json()
+        title = body.get("title",None)
+        recipe = body.get("recipe",None)
+        print(type(recipe))
+        print()
+        drink  =  Drink(
+        title = title,
+        recipe = json.dumps(recipe)
+        )
+        drink.insert()
+        print('santa')
+        new_drink = Drink.query.filter(Drink.title == title).first()
+        return jsonify({"success": True,"drinks":new_drink.long()}),200
+    except:
+        abort(422)
 
 '''
 @TODO implement endpoint
@@ -94,22 +96,27 @@ def add_drink():
 '''
 @app.route("/drinks/<int:id>", methods = ['PATCH'])
 def patch_drink(id):
-    try:
-        body = request.get_json()
-        title = body.get("title",None)
-        recipe = body.get("recipe",None)
-        upd_drink = Drink.query.filter(Drink.id==id).one_or_none()
-        if title:
-            upd_drink.title = title
-            upd_drink.update()
-        if recipe:
-            upd_drink.recipe = recipe
-            upd_drink.update()
-        new_drink = Drink.query.filter(Drink.title==title).first()
-        
-        return jsonify({"success": True, "drinks": new_drink.long()})
-    except:
-        abort(422)
+    print(id)
+    # try:
+    body = request.get_json()
+    title = body.get("title",None)
+    recipe = body.get("recipe",None)
+    print(title)
+    print(recipe)
+    print('alibaba')
+    upd_drink = Drink.query.filter(Drink.id==id).one_or_none()
+    if title:
+        upd_drink.title = title
+        upd_drink.update()
+    if recipe:
+        upd_drink.recipe = json.dumps(recipe)
+        upd_drink.update()
+    new_drink = Drink.query.filter(Drink.id==id).first()
+    
+    return jsonify({"success": True, "drinks": new_drink.long()})
+    # except Exception as e:
+    #     abort(422)
+    #     print(e)
         
 
 '''
