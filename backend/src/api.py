@@ -29,6 +29,7 @@ CORS(app)
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks')
+@requires_auth('get:drinks')
 def retrieve_drinks():
     try:
         drunk = Drink.query.order_by(Drink.id).all()
@@ -47,6 +48,7 @@ def retrieve_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks-detail')
+@requires_auth('get:drinks-detail')
 def retrieve_drinks_long():
     try:
         drunk = Drink.query.order_by(Drink.id).all()
@@ -65,19 +67,17 @@ def retrieve_drinks_long():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks',methods=['POST'])
+@requires_auth('post:drinks')
 def add_drink():
     try:
         body = request.get_json()
         title = body.get("title",None)
         recipe = body.get("recipe",None)
-        print(type(recipe))
-        print()
         drink  =  Drink(
         title = title,
         recipe = json.dumps(recipe)
         )
         drink.insert()
-        print('santa')
         new_drink = Drink.query.filter(Drink.title == title).first()
         return jsonify({"success": True,"drinks":new_drink.long()}),200
     except:
@@ -95,28 +95,26 @@ def add_drink():
         or appropriate status code indicating reason for failure
 '''
 @app.route("/drinks/<int:id>", methods = ['PATCH'])
+@requires_auth('patch:drinks')
 def patch_drink(id):
-    print(id)
-    # try:
-    body = request.get_json()
-    title = body.get("title",None)
-    recipe = body.get("recipe",None)
-    print(title)
-    print(recipe)
-    print('alibaba')
-    upd_drink = Drink.query.filter(Drink.id==id).one_or_none()
-    if title:
-        upd_drink.title = title
-        upd_drink.update()
-    if recipe:
-        upd_drink.recipe = json.dumps(recipe)
-        upd_drink.update()
-    new_drink = Drink.query.filter(Drink.id==id).first()
     
-    return jsonify({"success": True, "drinks": new_drink.long()})
-    # except Exception as e:
-    #     abort(422)
-    #     print(e)
+    try:
+        body = request.get_json()
+        title = body.get("title",None)
+        recipe = body.get("recipe",None)
+        upd_drink = Drink.query.filter(Drink.id==id).one_or_none()
+        if title:
+            upd_drink.title = title
+            upd_drink.update()
+        if recipe:
+            upd_drink.recipe = json.dumps(recipe)
+            upd_drink.update()
+        new_drink = Drink.query.filter(Drink.id==id).first()
+        
+        return jsonify({"success": True, "drinks": new_drink.long()})
+    except Exception as e:
+        abort(422)
+        print(e)
         
 
 '''
@@ -130,6 +128,7 @@ def patch_drink(id):
         or appropriate status code indicating reason for failure
 '''
 @app.route("/drinks/<int:id>", methods = ["DELETE"])
+@requires_auth('delete:drinks')
 def delete_drink(id):
     try:
         drink = Drink.query.filter(Drink.id==id).one_or_none()
